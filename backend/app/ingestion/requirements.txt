@@ -1,0 +1,9 @@
+boto3
+dotenv
+google-cloud-storage
+beautifulsoup4
+llama-cloud==2.11.0
+qdrant-client
+fastapi
+python-multipart
+uvicorn

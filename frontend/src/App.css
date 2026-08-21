@@ -1,0 +1,556 @@
+.card {
+  background: #0e1224;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 0 1px #1c2340, 0 20px 60px -20px rgba(124, 92, 255, 0.25);
+  width: 100%;
+  max-width: 480px;
+  text-align: left;
+  border: 1px solid #1c2340;
+  position: relative;
+}
+
+.card-header .eyebrow {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #2dd4bf;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.card-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #f5f6fb;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.card-header p {
+  font-size: 13.5px;
+  color: #7c85a3;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* Client Name Input */
+.client-name-input {
+  width: 100%;
+  padding: 13px 14px;
+  font-size: 14px;
+  background-color: #131832;
+  border: 1px solid #232a4a;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: #f5f6fb;
+  font-family: 'Inter', sans-serif;
+}
+
+.client-name-input::placeholder {
+  color: #55608a;
+}
+
+.client-name-input:focus {
+  border-color: #7c5cff;
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
+}
+
+.client-name-input:disabled {
+  background-color: #0f1326;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.hidden-input {
+  display: none;
+}
+
+/* Drop Zone */
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed #2a3255;
+  background-color: #0a0d1c;
+  padding: 32px 20px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.drop-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.08), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.drop-zone:hover::before {
+  transform: translateX(100%);
+}
+
+.drop-zone:hover {
+  border-color: #7c5cff;
+  background-color: #10142a;
+}
+
+.drop-zone.has-file {
+  border: 1.5px solid #2dd4bf;
+  background-color: #0b1a1c;
+}
+
+.icon-container {
+  width: 44px;
+  height: 44px;
+  background-color: rgba(124, 92, 255, 0.12);
+  color: #a78bfa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.upload-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.file-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #e8ebf5;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.file-hint {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: #55608a;
+  letter-spacing: 0.04em;
+}
+
+/* Upload Button */
+.upload-btn {
+  width: 100%;
+  background-color: #7c5cff;
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.upload-btn:hover:not(:disabled) {
+  background-color: #6c4bf0;
+  transform: translateY(-1px);
+}
+
+.upload-btn:disabled {
+  background-color: #1c2340;
+  color: #55608a;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Status Banners */
+.status-banner {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.status-banner.success {
+  background-color: rgba(45, 212, 191, 0.08);
+  color: #2dd4bf;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+}
+
+.status-banner.error {
+  background-color: rgba(248, 113, 113, 0.08);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.25);
+}
+
+.status-banner.loading {
+  background-color: #131832;
+  color: #b3bbdb;
+  border: 1px solid #232a4a;
+}
+
+/* Test Chat button */
+.test-chat-btn {
+  width: 100%;
+  margin-top: 12px;
+  background-color: transparent;
+  color: #2dd4bf;
+  border: 1px solid #1c3f3d;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.test-chat-btn:hover {
+  background-color: rgba(45, 212, 191, 0.06);
+  border-color: #2dd4bf;
+}
+
+/* ---------- Chat card ---------- */
+.chat-card {
+  background: #0e1224;
+  border-radius: 20px;
+  box-shadow: 0 0 0 1px #1c2340, 0 20px 60px -20px rgba(124, 92, 255, 0.25);
+  width: 100%;
+  max-width: 560px;
+  height: 640px;
+  border: 1px solid #1c2340;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-setup-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px;
+  border-bottom: 1px solid #1c2340;
+}
+
+.chat-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #f5f6fb;
+  margin-bottom: 4px;
+}
+
+.chat-header p {
+  font-size: 12px;
+  color: #7c85a3;
+}
+
+.chat-collection-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  color: #2dd4bf;
+  font-weight: 500;
+}
+
+.chat-close-btn {
+  background: none;
+  border: none;
+  color: #7c85a3;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.chat-close-btn:hover {
+  color: #f5f6fb;
+  background-color: #131832;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-empty {
+  font-family: 'IBM Plex Mono', monospace;
+  color: #55608a;
+  font-size: 12.5px;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.chat-bubble-row { display: flex; }
+.chat-bubble-row.user { justify-content: flex-end; }
+.chat-bubble-row.assistant { justify-content: flex-start; }
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.chat-bubble.user {
+  background-color: #7c5cff;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.assistant {
+  background-color: #131832;
+  color: #e8ebf5;
+  border: 1px solid #232a4a;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-typing {
+  display: flex;
+  gap: 4px;
+  padding: 14px 16px;
+}
+
+.chat-typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #55608a;
+  animation: typingBounce 1.2s infinite ease-in-out;
+}
+
+.chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.chat-error { margin: 0 24px 12px; }
+
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #1c2340;
+}
+
+.chat-input {
+  flex: 1;
+  background-color: #131832;
+  border: 1px solid #232a4a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #e8ebf5;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  max-height: 100px;
+}
+
+.chat-input:focus {
+  border-color: #7c5cff;
+}
+
+.chat-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chat-send-btn {
+  background-color: #7c5cff;
+  color: white;
+  border: none;
+  width: 44px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.chat-send-btn:hover:not(:disabled) {
+  background-color: #6c4bf0;
+}
+
+.chat-send-btn:disabled {
+  background-color: #1c2340;
+  color: #55608a;
+  cursor: not-allowed;
+}
+
+/* Standalone eyebrow (used in both card-header and chat-header) */
+.eyebrow {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #2dd4bf;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Boot sequence */
+.chat-boot {
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13.5px;
+}
+
+.chat-boot-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #7c85a3;
+}
+
+.chat-boot-line.done {
+  color: #2dd4bf;
+}
+
+.chat-boot-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #2dd4bf;
+  flex-shrink: 0;
+}
+
+.chat-boot-dot.pulsing {
+  background-color: #7c5cff;
+  animation: bootPulse 1s ease-in-out infinite;
+}
+
+@keyframes bootPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.chat-boot-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  background-color: #7c5cff;
+  margin-left: 2px;
+  animation: cursorBlink 0.8s step-end infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Smooth transition between boot → setup → chat stages */
+.chat-fade-in {
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.boot-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #05070d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: background-color 0.4s ease, opacity 0.4s ease;
+}
+
+.boot-overlay.flash {
+  animation: screenFlash 0.45s ease;
+}
+
+.boot-overlay.fade-out {
+  opacity: 0;
+}
+
+@keyframes screenFlash {
+  0% { background-color: #05070d; }
+  30% { background-color: #7c5cff; }
+  100% { background-color: #05070d; }
+}
+
+.boot-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.boot-overlay-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #7c5cff;
+}
+
+.boot-overlay-dot.pulsing {
+  animation: overlayPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes overlayPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+.boot-overlay-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: #7c85a3;
+  text-transform: uppercase;
+}
+
+.boot-overlay-ready {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}

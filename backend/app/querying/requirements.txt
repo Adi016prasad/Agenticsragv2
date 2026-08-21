@@ -1,0 +1,15 @@
+langgraph
+langchain-aws
+langchain-core
+fastapi
+dotenv
+uvicorn
+langchain-openai
+openai
+anthropic[bedrock]
+langchain-anthropic
+google-cloud-firestore
+qdrant-client
+langsmith
+crewai
+crewai[tools]

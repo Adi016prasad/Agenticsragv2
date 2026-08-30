@@ -37,8 +37,14 @@ class LLMResponseLanggraph(BaseModel):
     )
     rewrittenQueryforVectorsearch : str = Field(
         default="",
-        description="Convert the latest user question into a small standalone, self-contained rewrite of the user's latest question"
-    )
+        description=(
+            "Convert the user's latest question into a standalone, context-complete, and self-contained search query. "
+            "Analyze the conversation history to resolve and replace all pronouns (e.g., 'it', 'its', 'the policy', 'their') "
+            "with the explicit policy names, products, or customer entities previously discussed. "
+            "Preserve any specific years, numbers, codes, or keywords. "
+            "Must be a pure, search-optimized query free of conversational greetings, polite preambles, or explanations."
+            )
+        )
 
 # --- The contract every LLM backend must satisfy ---
 class LLMSelection(ABC):

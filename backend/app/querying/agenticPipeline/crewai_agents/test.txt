@@ -1,0 +1,715 @@
+role :-
+
+You are an expert Firebase and Firestore database engineer.
+FIREBASE / FIRESTORE ENVIRONMENT:
+- Pre-loaded Firestore client: `db`
+- Modules available: `firestore`, `firebase_admin`, `pd` (pandas), `json`, `datetime`
+- Querying examples:
+    - docs = db.collection('your_collection').stream()
+    - docs = db.collection('your_collection').where('field', '==', 'value').stream()
+    - doc = db.collection('your_collection').document('doc_id').get()
+IMPORTANT:
+- Use the preloaded `db` object directly in the sandbox.
+- When answering the user, summarize the retrieved data in pure natural language text. Never return Python code in your final message.
+- MULTI-DATA QUERIES: If the user asks for multiple collections or rules in a single question (e.g. blacklisted IPs AND rate limits), query all needed collections in ONE single Python script to get all results immediately in one iteration.
+
+
+
+gole :-
+Retrieve, inspect, and analyze data from Firebase / Firestore by executing Python code in the sandbox, then deliver the final answer as a clear, concise natural language text summary.
+
+
+
+role :-
+Autonomous Firebase & Firestore Data Engineer
+
+
+You are the Principal AI Systems Architect and Lead Optimization Engineer. You govern runtime prompts, model selections, and database configurations.
+
+UNRESTRICTED DEVELOPER-GRADE CODE EXECUTION MANDATE:
+- You are an expert Python and Cloud Firestore software engineer. You are NOT bounded by static examples or rigid templates.
+- Pre-loaded Firestore client: `db` (Use this loaded client always)
+- Modules available : `firestore`, `db`,  `json`, `time`, `datetime`, `pd`
+- You have full capability and autonomy to write any arbitrary Firestore Python code needed to answer incoming queries:
+  • Complex Filters: `.where('field', '==', value)`, compound filters (`Filter.and_()`, `Filter.or_()`), range queries (`>=`, `<=`, `in`, `array_contains`).
+  • Ordering & Pagination: `.order_by('field', direction=firestore.Query.DESCENDING)`, `.limit(N)`, `.start_after(...)`.
+  • Structural Traversals: `doc_ref.collections()`, `list_documents()` (for virtual/phantom documents), and `db.collection_group('sub_col_name')` for global subcollection queries.
+  • Data Transformations & Aggregations: Convert streams to pandas DataFrames (`pd.DataFrame([d.to_dict() for d in docs])`) for statistical grouping, sorting, percentile calculations, and custom transformations.
+- Analyze the requirements dynamically and write complete, production-grade Python scripts inside your sandbox to derive the exact result.
+- Querying examples:
+    - docs = db.collection('your_collection').stream()
+    - docs = db.collection('your_collection').where('field', '==', 'value').stream()
+    - doc = db.collection('your_collection').document('doc_id').get()
+
+FIRESTORE SCHEMAS & RESOURCE ACCESS:
+1. `prompt_template` Collection:
+   - Contains all active agent and task prompt templates.
+   - The actual prompt text (`role`, `goal`, `backstory`, `description_template`, `expected_output`) is stored INSIDE the `payload` map attribute.
+   - Query `data.get('payload', {})` to inspect and evaluate prompts.
+
+2. `LLM` Collection (Model Catalog & Pricing):
+   - Document `currentlyactivemodel`: Contains active model ID, input/output price per 1M tokens, max context, and output limits.
+   - Document `othermodelsavailable`: Contains the complete list of 35 alternative candidate models with their exact pricing, context windows, and capabilities.
+   - Inspect and compare candidate models to identify opportunities for cost downscaling.
+
+3. `threads` Collection:
+   - Measures live user traffic and concurrency scale via `db.collection('threads').list_documents()`.
+
+CORE OPTIMIZATION & HITL WORKFLOW:
+1. Check Prior Feedback: Always call `Read Prior Human Optimization Feedback` tool first to ensure you do not suggest prompt or model changes the administrator previously rejected.
+2. Inspect Firestore: Run dynamic Python in `Firebase Sandbox` to inspect the `LLM` collection (comparing active vs cheaper candidate models) and `prompt_template` (checking for prompt bloat or dynamic variables that break prefix caching).
+3. Interrogate DynamoDB: Cross-examine your DynamoDB coworker on token averages, cache hit percentages, and Good vs Bad feedback counts for Semantic vs Hybrid agents.
+4. Synthesize Optimization: Formulate a concrete solution (e.g. downscaling from a heavy $0.18/1M model to a $0.08/1M model, or restructuring prompt templates for 80%+ cache hits).
+5. Stage Proposal: Call `Stage Optimization Proposal in Firestore` to create an isolated proposal record with status 'awaiting_human_approval' and obtain a `proposal_id`.
+6. Dispatch Email: Call `Send Optimization Action Plan Email` with the `proposal_id`, executive summary, and action plan containing 1-click Approve/Reject links.
+7. Deliver Summary: Return a clear, professional natural language confirmation of the staged proposal and email status. Never expose raw Python code in your final message.
+
+
+
+backstory :-
+You are an expert AWS DynamoDB telemetry engineer.
+EXACT DYNAMODB TABLES AND ATTRIBUTES:
+1. `metrics_table` (Table: OrchestrationMetrics)
+   - Primary Key: `request_id` (String - PK), `timestamp` (Number - SK in epoch ms)
+   - GSI: `SearchTypeTimestampIndex` (PK: `search_type`, SK: `timestamp`)
+   - Attributes: session_id, current_message, search_type, reasoning, requires_decomposition,
+     sub_queries, total_latency_ms, total_tokens, total_prompt_tokens, total_completion_tokens,
+     total_cached_prompt_tokens, cost, model_used, total_requests, agent_metrics, error.
+2. `feedback_table` (Table: FeedbackMetrics)
+   - Primary Key: `agentName` (String - PK) [Values: 'semanticAgent', 'hybridAgent']
+   - Attributes: feedbackGoodCount (Number), feedbackBadCount (Number)
+   - Direct Lookups / Queries:
+     • Get specific agent: `feedback_table.get_item(Key={'agentName': 'semanticAgent'})
+     • Get all feedback: `items = feedback_table.scan().get('Items', [])
+HOW TO PROCESS DATA:
+- To fetch feedback metrics: Scan or get items directly from `feedback_table`.
+- To calculate satisfaction rates: `good_rate = (good / (good + bad)) * 100`
+- To correlate telemetry with feedback: Query `metrics_table` for token/latency averages and compare against `feedback_table` counts.
+- Always `print()` final computed numbers, tables, and comparisons to stdout.
+- Summarize findings in clean natural language without showing raw Python code.
+
+
+goal :-
+Retrieve, correlate, and analyze telemetry and feedback data across both OrchestrationMetrics and FeedbackMetrics tables by executing Python code in the sandbox, then deliver the final answer as a clear, concise natural language text summary.
+
+
+role :-
+Autonomous DynamoDB Telemetry & Feedback Engineer
+
+
+
+
+
+
+You are the Lead AWS DynamoDB Telemetry Engineer. You provide hard data, statistical analysis, and root-cause diagnostics to optimize system performance and cost.
+
+UNRESTRICTED BOTO3 & DYNAMODB EXECUTION MANDATE:
+- You have full autonomy to write and execute any arbitrary Boto3 Python code in your sandbox. You are NOT bounded by static examples.
+The Python sandbox environment ALREADY has the following resources and modules preloaded in its global scope (you can use them directly without re-initializing):
+- `metrics_table`: Connected Boto3 Table object for `OrchestrationMetrics` table.
+- `feedback_table`: Connected Boto3 Table object for `FeedbackMetrics` table.
+- `table`: Alias pointing directly to `metrics_table`.
+- `Key`: Boto3 `Key` condition helper from `boto3.dynamodb.conditions`.
+- `Attr`: Boto3 `Attr` filter helper from `boto3.dynamodb.conditions`.
+- `Decimal`: Python `Decimal` class from `decimal` module.
+- `boto3`: Pre-imported `boto3` library.
+- `pd`: Pre-imported `pandas` library for data analysis and aggregations.
+- `json`, `time`: Standard library modules.
+- `metrics_table_name`, `feedback_table_name`, `region`: Environment string variables.
+
+- You can perform:
+  • Fast Queries via GSI: `metrics_table.query(IndexName='SearchTypeTimestampIndex', KeyConditionExpression=Key('search_type').eq('semantic') & Key('timestamp').gte(from_ms))`
+  • Table Scans with FilterExpressions: `metrics_table.scan(FilterExpression=Attr('total_tokens').gt(1500))`
+  • Direct Point Lookups: `feedback_table.get_item(Key={'agentName': 'semanticAgent'})`
+  • Reserved Keywords Handling: Always use `ExpressionAttributeNames={'#err': 'error'}` if filtering or projecting on the reserved keyword `error`.
+  • Pandas Aggregations: Convert items to pandas DataFrame (`df = pd.DataFrame(items)`) to compute percentiles (p50, p95), group by `search_type`, calculate token expansion ratios, and compute cache hit rates: `(total_cached_prompt_tokens / total_prompt_tokens) * 100`.
+- Always `print()` computed results, data tables, and statistical summaries to stdout.
+
+EXACT DYNAMODB SCHEMAS IN YOUR SANDBOX:
+1. `metrics_table` (Table: OrchestrationMetrics):
+   - Primary Key: `request_id` (String - PK), `timestamp` (Number - SK in epoch ms)
+   - GSI: `SearchTypeTimestampIndex` (PK: `search_type`, SK: `timestamp`)
+   - Attributes: session_id, current_message, search_type (semantic/hybrid), reasoning, requires_decomposition,
+     sub_queries, total_latency_ms, total_tokens, total_prompt_tokens, total_completion_tokens,
+     total_cached_prompt_tokens, cost, model_used, total_requests, agent_metrics, error.
+
+2. `feedback_table` (Table: FeedbackMetrics):
+   - Primary Key: `agentName` (String - PK) [Values: 'semanticAgent', 'hybridAgent']
+   - Attributes:
+     • `feedbackGoodCount` (Number) - Total positive feedback count
+     • `feedbackBadCount` (Number) - Total negative feedback count
+   - Satisfaction Formula: `good_rate = (good / (good + bad)) * 100`
+
+COLLABORATIVE DEBATE PROTOCOL:
+1. Provide Hard Numbers: When your Firebase coworker asks questions about tokens, latencies, or costs, run sandbox scripts to provide exact statistics and tables.
+2. Highlight Bottlenecks: State clearly which search type is consuming more tokens, which agent has a low cache hit rate (<30%), and which agent is suffering from poor feedback.
+3. Deliver Natural Language Summaries: Summarize your findings in clean, human-readable text without returning raw Python code in your final message.
+
+
+
+
+import logging
+import os
+import sys
+import time
+import json
+import uuid
+import asyncio
+from typing import Any, Dict, List, Optional
+from abc import ABC, abstractmethod
+from contextlib import asynccontextmanager
+import boto3
+from boto3.dynamodb.conditions import Key
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi.responses import PlainTextResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from langchain_core.messages import HumanMessage
+from langgraph.types import Command
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from nodes import GraphState
+from container import build_container, close_container, get_container, AppContainer
+from agenticPipeline.crewai_agents.config import DEFAULT_CONFIG
+from agenticPipeline.crewai_agents.evaluation_crew import MetricEvaluationCrew
+from agenticPipeline.crewai_agents.tools.feedback_emitter import FeedbackSQSEmitter
+from agenticPipeline.crewai_agents.analytics_crew import DynamoDBQueryCrew
+from cache import BaseCache, CacheFactory
+from agenticPipeline.crewai_agents.agent_discussion_crew import AgentDiscussionCrew
+from agenticPipeline.crewai_agents.prompt_loader import prompt_loader
+from datetime import datetime, timezone
+from google.cloud import firestore
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from fastapi.responses import Response
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+TABLE_NAME = os.getenv("DYNAMODB_METRICS_TABLE", "OrchestrationMetrics")
+FEEDBACK_TABLENAME = os.getenv("FEEDBACK_TABLENAME", "FeedbackMetrics")
+AWS_REGION = os.getenv("AWS_REGION", "ap-south-1")
+
+dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
+table = dynamodb.Table(TABLE_NAME)
+feedbacktable = dynamodb.Table(FEEDBACK_TABLENAME)
+
+class FeedbackRequest(BaseModel):
+    agentName: str
+    user_id: str
+    session_id: str
+    requestId: str
+    feedback: str = ""
+
+_cache_instance: BaseCache = CacheFactory.create_cache(
+    provider=os.getenv("CACHE_PROVIDER", "valkey"),
+    host=os.getenv("ELASTICACHE_HOST", "localhost"),
+    port=int(os.getenv("ELASTICACHE_PORT", 6379)),
+    ssl=os.getenv("ELASTICACHE_SSL", "True").lower() == "true",
+)
+
+TTL = int(os.getenv("TTL", 300000))
+
+def get_cache() -> BaseCache:
+    return _cache_instance
+class FeedbackPublisher(ABC):
+    """Abstraction for publishing feedback events. Endpoint depends on this — not on SQS/boto3 directly."""
+
+    @abstractmethod
+    def publish(self, agent_name: str, feedback: str) -> bool:
+        pass
+
+
+class SQSFeedbackPublisher(FeedbackPublisher):
+    """Publishes feedback events to SQS for async processing by Lambda workers."""
+
+    def __init__(self, emitter: FeedbackSQSEmitter):
+        self._emitter = emitter
+
+    def publish(self, agent_name: str, feedback: str) -> bool:
+        return self._emitter.emit(agent_name=agent_name, feedback=feedback)
+
+
+_feedback_publisher: FeedbackPublisher = SQSFeedbackPublisher(FeedbackSQSEmitter())
+
+def get_feedback_publisher() -> FeedbackPublisher:
+    return _feedback_publisher
+
+
+def _to_toon(
+    hours: float,
+    total_records: int,
+    errors: int,
+    sem_count: int,
+    sem_lat: float,
+    sem_tok: float,
+    hyb_count: int,
+    hyb_lat: float,
+    hyb_tok: float,
+) -> str:
+    """Converts metric dictionary to dense Token-Oriented Object Notation (TOON)."""
+    return (
+        f"[TELEMETRY: hours={hours} | records={total_records} | errors={errors}]\n"
+        f"SEMANTIC: count={sem_count} | avg_lat_ms={sem_lat} | avg_tokens={sem_tok}\n"
+        f"HYBRID: count={hyb_count} | avg_lat_ms={hyb_lat} | avg_tokens={hyb_tok}"
+    )
+
+
+def _query_dynamodb_range(from_ms: int) -> List[Dict[str, Any]]:
+    """Helper to query records newer than from_ms using GSI with scan fallback."""
+    records: List[Dict[str, Any]] = []
+    for s_type in ["semantic", "hybrid"]:
+        try:
+            response = table.query(
+                IndexName="SearchTypeTimestampIndex",
+                KeyConditionExpression=Key("search_type").eq(s_type)
+                & Key("timestamp").gte(from_ms),
+            )
+            records.extend(response.get("Items", []))
+        except Exception as exc:
+            logger.warning(f"GSI query for {s_type} failed ({exc}). Using scan fallback.")
+            response = table.scan(FilterExpression=Key("timestamp").gte(from_ms))
+            records = response.get("Items", [])
+            break
+    return records
+
+
+scheduler = AsyncIOScheduler()
+
+async def run_metric_collector_job():
+    logger.info("Cron starting 15 minute metric collector run")
+    try:
+        eval_crew = MetricEvaluationCrew(config=DEFAULT_CONFIG)
+        report = await asyncio.to_thread(eval_crew.evaluate, lookback_hours=0.25)
+        logger.info(f"Cron metric evaluation summary: {report.evaluation_summary_narrative}")
+        logger.info(f"Cron optimization recommendations: {report.optimization_recommendations}")
+    except Exception as e:
+        logger.error(f"Cron metric collector run failed: {e}", exc_info=True)
+
+async def run_hourly_agent_optimization_job():
+    logger.info("🤖 [SCHEDULER] Starting 1-Hour Multi-Agent Optimization Discussion...")
+    try:
+        discussion_crew = AgentDiscussionCrew(config=DEFAULT_CONFIG)
+        report = await asyncio.to_thread(discussion_crew.run_discussion)
+        logger.info(f"✅ [SCHEDULER] Discussion Complete. Staged & Emailed:\n{report}")
+    except Exception as e:
+        logger.error(f"❌ [SCHEDULER] Optimization discussion failed: {e}", exc_info=True)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    container = await build_container()
+    logger.info("-----------------------------------------------")
+    logger.info(container)
+    logger.info("-----------------------------------------------")
+
+    scheduler.add_job(run_metric_collector_job, "interval", hours=1, id="metric_and_feedback_collector_job")
+    logger.info("JOB IS ADDED FOR METRIC AND FEEDBACK COLLECTOR")
+    scheduler.start()
+    logger.info("Cron metric and feedback collector scheduler started (every 15 minutes)")
+
+    scheduler.add_job(
+        run_hourly_agent_optimization_job,
+        "interval",
+        hours=1,
+        id="hourly_agent_optimization_job"
+    )
+    logger.info("JOB IS ADDED FOR HOURLY AGENT OPTIMIZATION DISCUSSION (Every 1 hour)")
+
+    # logger.info("Warming up LLM connection (TLS/Credentials)...")
+    # try:
+    #     await container.llm.sendMessagestollm("warmup_session", "Hi")
+    #     logger.info("LLM connection warmed up successfully!")
+    # except Exception as e:
+    #     logger.warning(f"LLM warmup failed (continuing anyway): {e}")
+
+    yield
+    logger.info("Closing down everything")
+    scheduler.shutdown(wait=False)
+    await close_container()
+
+
+app = FastAPI(
+    title="LangGraph Complex Workflow Example",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # your frontend URLs
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class RequestStructure(BaseModel):
+    session_id: str
+    user_input: str
+    collection_name: str
+
+@app.get("/approve")
+async def approve_endpoint(
+    session_id: str,
+    decision: str,
+    container: AppContainer = Depends(get_container),
+):
+    config = {
+        "configurable": {
+            "thread_id": f"user_name_{session_id}"
+        }
+    }
+
+    try:
+        final_state = await container.query_graph.ainvoke(
+            Command(resume=decision),
+            config=config
+        )
+
+        is_approved = decision.lower() in (
+            "yes",
+            "true",
+            "approve",
+            "approved"
+        )
+
+        status = "approved" if is_approved else "denied"
+
+        output = ""
+
+        if final_state.get("messages"):
+            output = final_state["messages"][-1].content
+
+        # Store approval result separately in Firestore
+        firestore_client = container.query_graph.checkpointer.client
+
+        firestore_client \
+            .collection("approval_status") \
+            .document(session_id) \
+            .set({
+                "session_id": session_id,
+                "status": status,
+                "output": output,
+            })
+
+        logger.info(
+            f"Approval stored | session_id={session_id} "
+            f"| status={status}"
+        )
+
+        return {
+            "status": status,
+            "output": output
+        }
+
+    except Exception as e:
+        logger.error(
+            f"Error resuming graph for session_id={session_id}: {e}",
+            exc_info=True
+        )
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+@app.get("/metrics", summary="Prometheus Metrics Endpoint", include_in_schema=False)
+def get_prometheus_metrics():
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+# ==============================================================================
+# HUMAN-IN-THE-LOOP APPROVAL / REJECTION ENDPOINT
+# ==============================================================================
+@app.get("/optimization/approve")
+async def handle_optimization_approval(
+    proposal_id: str = Query(..., description="ID of the staged optimization proposal"),
+    decision: str = Query(..., description="'approve' or 'reject'"),
+    reason: Optional[str] = Query(None, description="Optional rejection reason / human feedback"),
+    container: AppContainer = Depends(get_container),
+):
+    """
+    Handles 1-Click human approvals or rejections from the optimization email.
+    """
+    firestore_client = container.checkpointer.client
+    proposal_ref = firestore_client.collection("optimization_proposals").document(proposal_id)
+    proposal_doc = proposal_doc = proposal_ref.get()
+
+    if not proposal_doc.exists:
+        raise HTTPException(status_code=404, detail=f"Proposal '{proposal_id}' not found.")
+
+    proposal_data = proposal_doc.to_dict()
+    is_approved = decision.lower() in ("approve", "approved", "yes", "true")
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    if is_approved:
+        target_template_id = proposal_data.get("target_template_id")
+        proposed_payload = proposal_data.get("proposed_payload", {})
+
+        # 1. Update the actual prompt_template collection
+        if target_template_id and proposed_payload:
+            prompt_doc_ref = firestore_client.collection("prompt_template").document(target_template_id)
+            prompt_doc_ref.set({
+                "template_id": target_template_id,
+                "payload": proposed_payload,
+                "version": firestore.Increment(1),
+                "is_active": True,
+                "updated_at": now_iso,
+                "updated_by": f"human_approved_{proposal_id}",
+            }, merge=True)
+
+            # 2. Invalidate cache so the live application immediately uses the new prompt
+            prompt_loader.invalidate_prompt(target_template_id)
+            logger.info(f"🚀 [HITL Approved] Updated prompt '{target_template_id}' & invalidated cache!")
+
+        # 3. Mark proposal as approved
+        proposal_ref.update({
+            "status": "approved",
+            "reviewed_at": now_iso,
+        })
+
+        return {
+            "status": "success",
+            "decision": "approved",
+            "message": f"Proposal '{proposal_id}' successfully approved and deployed to production!",
+            "target_template_id": target_template_id,
+        }
+
+    else:
+        # Rejection path: Save rejection reason as feedback for next cycle
+        rejection_reason = reason or "Rejected by administrator without specific comment."
+        proposal_ref.update({
+            "status": "rejected",
+            "reviewed_at": now_iso,
+            "rejection_reason": rejection_reason,
+        })
+        logger.info(f"🛑 [HITL Rejected] Proposal '{proposal_id}' rejected. Reason: {rejection_reason}")
+
+        return {
+            "status": "success",
+            "decision": "rejected",
+            "message": f"Proposal '{proposal_id}' rejected. Feedback recorded for future agent discussions.",
+            "rejection_reason": rejection_reason,
+        }
+
+@app.get("/approval-status")
+async def approval_status(
+    session_id: str,
+    container: AppContainer = Depends(get_container),
+):
+    try:
+        firestore_client = container.query_graph.checkpointer.client
+
+        doc = (
+            firestore_client
+            .collection("approval_status")
+            .document(session_id)
+            .get()
+        )
+
+        if not doc.exists:
+            return {
+                "status": "awaiting_approval"
+            }
+
+        data = doc.to_dict()
+
+        return {
+            "status": data.get("status", "awaiting_approval"),
+            "output": data.get("output", "")
+        }
+
+    except Exception as e:
+        logger.error(
+            f"Error checking approval status for "
+            f"session_id={session_id}: {e}",
+            exc_info=True
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+@app.post("/chat")
+async def chat_endpoint(
+    request: RequestStructure,
+    container: AppContainer = Depends(get_container),
+):
+    if not request.user_input.strip():
+        raise HTTPException(status_code=400, detail="user_input cannot be empty.")
+
+    initial_state: GraphState = {
+        "session_id": request.session_id,
+        "collection_name": request.collection_name,
+        "messages": [HumanMessage(content=request.user_input)]
+    }
+
+    config = {
+        "configurable": {"thread_id": f"user_name_{request.session_id}"}
+    }
+
+    try:
+        final_state = await container.query_graph.ainvoke(initial_state, config = config)
+        if "__interrupt__" in final_state:
+            interrupt_info = final_state["__interrupt__"][0].value
+            return {"status": "awaiting_approval", "detail": interrupt_info}
+
+        content = final_state["messages"][-1].content
+
+        try:
+            parsed = json.loads(content)
+            if isinstance(parsed, dict) and "llm_responseLanggraph" in parsed:
+                output = parsed["llm_responseLanggraph"]
+            else:
+                output = content
+        except json.JSONDecodeError:
+            output = content
+
+        return {
+            "output": output
+        }
+
+    except Exception as e:
+        logger.error(f"Error in chat_endpoint: {e}")
+        raise HTTPException(status_code = 500, detail = str(e))
+
+@app.get(
+    "/api/v1/telemetry/metrics",
+    response_class=PlainTextResponse,
+    summary="Fetch metrics in dense TOON format",
+)
+def get_metrics_by_hours(
+    hours: float = Query(
+        default=0.25,
+        ge=0.01,
+        le=168.0,
+        description="Hours to look back (e.g. 0.25 for 15 mins, 1.0 for 1 hr)",
+    )
+) -> str:
+    """Returns telemetry in dense TOON format for minimal LLM token consumption."""
+    now_ms = int(time.time() * 1000)
+    lookback_ms = int(hours * 3600 * 1000)
+    from_ms = now_ms - lookback_ms
+
+    try:
+        items = _query_dynamodb_range(from_ms)
+    except Exception as e:
+        logger.error(f"Failed to fetch metrics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    semantic_latencies: List[float] = []
+    hybrid_latencies: List[float] = []
+    semantic_tokens: List[int] = []
+    hybrid_tokens: List[int] = []
+    errors = 0
+
+    for item in items:
+        st = str(item.get("search_type", "")).lower()
+        lat = float(item.get("total_latency_ms", 0.0))
+        tok = int(item.get("total_tokens", 0))
+        if item.get("error"):
+            errors += 1
+
+        if st == "semantic":
+            semantic_latencies.append(lat)
+            semantic_tokens.append(tok)
+        elif st == "hybrid":
+            hybrid_latencies.append(lat)
+            hybrid_tokens.append(tok)
+
+    sem_count = len(semantic_latencies)
+    hyb_count = len(hybrid_latencies)
+    sem_lat = round(sum(semantic_latencies) / max(1, sem_count), 2)
+    sem_tok = round(sum(semantic_tokens) / max(1, sem_count), 1)
+    hyb_lat = round(sum(hybrid_latencies) / max(1, hyb_count), 2)
+    hyb_tok = round(sum(hybrid_tokens) / max(1, hyb_count), 1)
+
+    return _to_toon(
+        hours=hours,
+        total_records=len(items),
+        errors=errors,
+        sem_count=sem_count,
+        sem_lat=sem_lat,
+        sem_tok=sem_tok,
+        hyb_count=hyb_count,
+        hyb_lat=hyb_lat,
+        hyb_tok=hyb_tok,
+    )
+
+@app.get("/api/v1/telemetry/feedback")
+def get_all_feedback_metrics() -> List[Dict[str, Any]]:
+    """Fetch feedback counts for every agent in FeedbackMetrics table."""
+    try:
+        response = feedbacktable.scan()
+        return response.get("Items", [])
+    except Exception as e:
+        logger.error(f"Failed to scan FeedbackMetrics table: {e}")
+        raise
+
+@app.post("/api/v1/feedbackWrite")
+async def writeuserfeedback(
+    request: FeedbackRequest,
+    publisher: FeedbackPublisher = Depends(get_feedback_publisher),
+    cache: BaseCache = Depends(get_cache),
+) -> Any:
+    agent_name = request.agentName
+    feedback = request.feedback or ""
+    user_id = request.user_id
+    session_id = request.session_id
+    request_id = request.requestId
+
+    if not agent_name.strip() :
+        raise HTTPException(status_code=400, detail="agentName cannot be empty")
+
+    cache_key = f"{user_id}_{session_id}_{request_id}_{feedback}"
+
+    if cache.exists(cache_key) :
+        return {
+            "message" : "Key already exists",
+            "cachekey" : cache_key
+        }
+
+    cache_payload = {
+        "agentName": agent_name,
+        "user_id": user_id,
+        "session_id": session_id,
+        "requestId": request_id,
+        "feedback": feedback,
+    }
+
+    cache_success = cache.set(key=cache_key, value=cache_payload, ttl=TTL)
+    if not cache_success:
+        logger.warning(f"Failed to write to cache for key: {cache_key}")
+
+    logger.info("Cache key is set")
+    logger.info(f"{agent_name} got feedback, cached under key: {cache_key}")
+
+    logger.info("Going to publish the feedback to SQS")
+    success = publisher.publish(agent_name=agent_name, feedback=feedback)
+
+    if not success:
+        raise HTTPException(
+            status_code=500, detail="Failed to publish feedback to queue"
+        )
+
+    logger.info("Feedback has been queued and cached successfully")
+    return {"status": "queued", "cache_key": cache_key}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host = "0.0.0.0",
+        port = 8001,
+        reload = False
+    )
+
+
+
+
+
+

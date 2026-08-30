@@ -1,0 +1,90 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Agentic Search Routing (Semantic vs Hybrid RPS)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (search_type) (rate(agentic_requests_total[1m]))",
+          "legendFormat": "{{search_type}}"
+        }
+      ]
+    },
+    {
+      "title": "Token Consumption Rate (Tokens/Sec by Type)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (token_type) (rate(agentic_tokens_total[1m]))",
+          "legendFormat": "{{token_type}}"
+        }
+      ]
+    },
+    {
+      "title": "Prompt Cache Hit Ratio (%)",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "agentic_prompt_cache_hit_ratio_pct",
+          "legendFormat": "{{search_type}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 30 },
+              { "color": "green", "value": 75 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "p95 Latency by Agent (Seconds)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, agent_name) (rate(agentic_agent_latency_seconds_bucket[5m])))",
+          "legendFormat": "{{agent_name}}"
+        }
+      ]
+    },
+    {
+      "title": "User Feedback Totals (Good vs Bad)",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum by (agent_name, sentiment) (agentic_feedback_total)",
+          "legendFormat": "{{agent_name}} - {{sentiment}}"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["agentic", "crewai"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "🤖 CrewAI Agentic Pipeline Observability",
+  "version": 1
+}

@@ -589,6 +589,23 @@ def _log_knowledge_gap(session_id: str, request_id: str, raw_message: str, colle
     except Exception as e :
         logger.warning(f"Could not log knowledge gap: {e}")
 
+def _log_agentic_error(session_id: str, request_id: str, error_message: str, current_message: str) -> None:
+    """Asynchronously records Agentic Pipeline (Orchestrator/Rewriter) failures to Firestore."""
+    try:
+        from container import get_container
+        db = get_container().checkpointer.client
+        db.collection("agent_errors").add({
+            "error_id": f"err_{uuid.uuid4().hex[:10]}",
+            "session_id": session_id,
+            "request_id": request_id,
+            "error_message": error_message,
+            "current_message": current_message,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info(f"🛑 Successfully logged agentic error to 'agent_errors' collection.")
+    except Exception as exc:
+        logger.warning(f"Failed to log agentic error to Firestore: {exc}")
+
 async def send_approval_email_node(
     state: GraphState,
     runtime: Runtime
@@ -924,8 +941,16 @@ async def trigger_agentic_group(state: GraphState, runtime: Runtime) -> dict[str
 
         if flow.state.error:
             logger.error(f"Agentic pipeline returned an error: {flow.state.error}")
+
+            _log_agentic_error(
+                session_id=state.get("session_id", "unknown"),
+                request_id=state.get("request_id", "unknown"),
+                error_message=str(flow.state.error),
+                current_message=current_user_message
+            )
+
             return {
-                "messages": [AIMessage(content="Agentic classification failed, please try rephrasing your request.")],
+                "messages": [AIMessage(content="Agentic classification failed, please try rephrasing your request")],
                 "document_found": False,
                 "clarification_attempts": 0,
                 "agentic_pipeline_current_counter": current_counter + 1

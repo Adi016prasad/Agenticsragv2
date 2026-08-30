@@ -86,6 +86,7 @@ class SQSMetricsEmitter:
             "total_requests": getattr(metrics, "total_requests", 0) if metrics else 0,
             "agent_metrics": agent_metrics_payload,
             "error": getattr(state, "error", "") or "",
+            "eventType" : "metrics"
         }
 
         try:

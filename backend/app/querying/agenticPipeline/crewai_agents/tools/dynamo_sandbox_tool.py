@@ -1,5 +1,5 @@
 """
-Dynamic Python Execution Sandbox for DynamoDB Query Generation.
+Dynamic Python Execution Sandbox for Multi-Table DynamoDB Query Generation.
 """
 from __future__ import annotations
 
@@ -24,25 +24,28 @@ logger = logging.getLogger(__name__)
 class PythonSandboxInput(BaseModel):
     code: str = Field(
         ...,
-        description="The complete Python code using boto3 to query/scan the table and print results to stdout.",
+        description="The complete Python code using boto3 to query/scan the DynamoDB tables and print results to stdout.",
     )
 
 
 class DynamoDBSandboxInterpreterTool(BaseTool):
     name: str = "Execute Python Code in DynamoDB Sandbox"
     description: str = (
-        "Executes Python code in a sandbox with pre-loaded 'boto3', 'Key', 'Attr', and DynamoDB 'table'. "
-        "Write custom query/scan logic using KeyConditionExpression or FilterExpression. "
+        "Executes Python code in a sandbox with pre-loaded DynamoDB resources: "
+        "'metrics_table' (OrchestrationMetrics), 'feedback_table' (FeedbackMetrics), "
+        "'boto3', 'Key', 'Attr', and 'Decimal'. "
         "Always print the final result using print()."
     )
     args_schema: Type[BaseModel] = PythonSandboxInput
 
     def _run(self, code: str) -> str:
-        table_name = os.getenv("DYNAMODB_METRICS_TABLE", "OrchestrationMetrics")
+        metrics_table_name = os.getenv("DYNAMODB_METRICS_TABLE", "OrchestrationMetrics")
+        feedback_table_name = os.getenv("FEEDBACK_TABLENAME", "FeedbackMetrics")
         region = os.getenv("AWS_REGION", "ap-south-1")
 
         dynamodb = boto3.resource("dynamodb", region_name=region)
-        table = dynamodb.Table(table_name)
+        metrics_table = dynamodb.Table(metrics_table_name)
+        feedback_table = dynamodb.Table(feedback_table_name)
 
         try:
             import pandas as pd
@@ -54,15 +57,17 @@ class DynamoDBSandboxInterpreterTool(BaseTool):
             "Key": Key,
             "Attr": Attr,
             "Decimal": Decimal,
-            "table": table,
-            "table_name": table_name,
+            "metrics_table": metrics_table,
+            "feedback_table": feedback_table,
+            "table": metrics_table,
+            "metrics_table_name": metrics_table_name,
+            "feedback_table_name": feedback_table_name,
             "region": region,
             "json": json,
             "time": time,
             "pd": pd,
         }
 
-        # Strip markdown wrappers if present
         clean_code = code.strip()
         if clean_code.startswith("```python"):
             clean_code = clean_code[9:]

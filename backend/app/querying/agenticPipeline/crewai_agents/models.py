@@ -124,42 +124,6 @@ class StrategyPerformanceSummary(BaseModel):
     avg_tokens_per_request: float
     health_status: str = Field(description="'HEALTHY', 'DEGRADED', or 'CRITICAL'")
     bottlenecks_detected: List[str] = Field(default_factory=list)
-
-
-# class SystemPerformanceEvaluation(BaseModel):
-#     """Structured output of the Metric Collector Agent stored in Memory."""
-
-#     evaluation_timestamp_ms: int = Field(default_factory=lambda: int(time.time() * 1000))
-#     time_window_hours: float
-#     overall_health: str = Field(description="'OPTIMAL', 'WARNING', or 'UNSTABLE'")
-#     semantic_performance: StrategyPerformanceSummary
-#     hybrid_performance: StrategyPerformanceSummary
-#     key_findings: List[str] = Field(description="Key observations and anomaly detections.")
-#     optimization_recommendations: List[str] = Field(
-#         description="Actionable prompt, top_k, or routing adjustments for the orchestrator."
-#     )
-
-# class SystemPerformanceEvaluation(BaseModel):
-#     """Structured output of the Metric Collector Agent stored in Memory."""
-
-#     evaluation_timestamp_ms: int = Field(default_factory=lambda: int(time.time() * 1000))
-#     time_window_hours: float
-#     overall_health: str = Field(description="'OPTIMAL', 'WARNING', or 'UNSTABLE'")
-    
-#     # 🌟 THE SYNTHESIZED EXECUTIVE SUMMARY STRING
-#     evaluation_summary_narrative: str = Field(
-#         description=(
-#             "A concise, high-impact narrative summarizing current performance, "
-#             "comparing it against historical memory trends (e.g. Turn 1 vs Turn 2), "
-#             "and highlighting the primary bottleneck and recommendation."
-#         )
-#     )
-    
-#     semantic_performance: StrategyPerformanceSummary
-#     hybrid_performance: StrategyPerformanceSummary
-#     key_findings: List[str]
-#     optimization_recommendations: List[str]
-
 class SystemPerformanceEvaluation(BaseModel):
     """Structured output of the Metric Collector Agent.
 
@@ -171,19 +135,15 @@ class SystemPerformanceEvaluation(BaseModel):
     evaluation_summary_narrative: str = Field(
         ...,
         min_length=1,
-        description=(
-            "Prose narrative of current-window performance. Cover what happened "
-            "in this window, how it compares to the prior evaluation memory, and "
-            "the primary bottleneck. Multi-paragraph is fine; internal bullets "
-            "are fine."
-        ),
+        description = (
+            """Just summarize the performance of the agents of semantic and hybrid agents in terms of tokens uasge, latency and concluding which agent is performing better
+            along with reason"""
+        )
     )
     optimization_recommendations: str = Field(
         ...,
         min_length=1,
         description=(
-            "Prose recommendations. Concrete, actionable adjustments to prompts, "
-            "top_k, model choice, or routing. Use dashes or numbered lines inside "
-            "the string if useful."
+            """Just tell the good feedback count and bad feedback count of hybrid and semantic agent and conclude which is performing better"""
         ),
     )

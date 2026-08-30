@@ -6,7 +6,7 @@ APPROVAL_BASE_URL = os.getenv("APPROVAL_BASE_URL", "http://localhost:8001")
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD_AGENTIC")
 APPROVER_EMAIL = os.getenv("APPROVER_EMAIL")
 
 async def send_approval_email(session_id: str, total_tokens: int) -> None:

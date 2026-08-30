@@ -13,3 +13,14 @@ qdrant-client
 langsmith
 crewai
 crewai[tools]
+apscheduler
+redis
+pandas
+prometheus-client
+ragas
+datasets
+langchain-community==0.0.38
+tiktoken
+langchain-google-vertexai
+rouge-score
+sacrebleu

@@ -14,6 +14,7 @@ from .crews import ClassificationFailedError, MasterOrchestratorClassifier, Rewr
 from .models import Message, OrchestrationState, SearchType, SubQueryPlan
 from .registry import RewriterRegistry
 from .strategies import IQueryClassifier
+from .agentic_prometheus_metrics import record_agentic_flow_metrics
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +90,9 @@ class QueryOrchestrationFlow(Flow[OrchestrationState]):
                 for agent_m in self.state.metrics.agent_metrics.values():
                     pct = (agent_m.latency_ms / total_lat) * 100.0
                     agent_m.flow_latency_contribution_pct = round(pct, 2)
+
+            # 👉 PUSH METRICS TO PROMETHEUS
+            record_agentic_flow_metrics(self.state)
 
     def result(self) -> Optional[SubQueryPlan]:
         return self.state.plan

@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import Type
+from typing import Type, Any
 
 import requests
 from crewai.tools import BaseTool
@@ -37,8 +37,25 @@ class FetchMetricsFromAPITool(BaseTool):
         try:
             response = requests.get(url, params={"hours": hours}, timeout=15)
             response.raise_for_status()
-            # Returns the raw, compact TOON string
             return response.text
         except requests.RequestException as exc:
             logger.error(f"API request failed: {exc}")
             return f"Error: Failed to fetch metrics from API ({exc})."
+
+class FetchMetricsOfFeedbackFromAPITool(BaseTool):
+    name : str = "Fetch Orchestration feedback from API"
+    description: str = (
+            "Calls the feedback endpoint to retrieve the good and bad feedback count of particular agent"
+        )
+    
+    def _run(self) -> Any :
+        api_base_url = os.getenv("TELEMETRY_API_BASE_URL", "http://localhost:8000")
+        url = f"{api_base_url}/api/v1/telemetry/feedback"
+
+        try:
+            response = requests.get(url, timeout = 15)
+            response.raise_for_status()
+            return response.text
+        except requests.RequestException as exc:
+            logger.error(f"API request failed: {exc}")
+            return f"Error Failed to fetch metrics from API ({exc})."

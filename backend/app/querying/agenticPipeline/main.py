@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import json
 import logging
 
 from crewai_agents import SQSMetricsEmitter, run_orchestration
-from history import current_message_3, history_3
+from agenticPipeline.history import current_message_3, history_3
 
 logging.basicConfig(level=logging.INFO)
 

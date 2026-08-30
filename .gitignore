@@ -11,7 +11,7 @@ frontend/node_modules/
 .DS_Store
 *.tgzbackend/app/awselasticcachetesting/valkey/
 backend/app/querying/agenticrag-f51fd-firebase-adminsdk-fbsvc-1201a831e5.json
-backend/app/querying/newproject-2405f-firebase-adminsdk-fbsvc-7e51640b8d.json
+backend/app/querying/newproject-2405f-firebase-adminsdk-fbsvc-2428049929.json
 backend/app/ingestion/venv
 backend/app/ingestion/task-def-clean.json
 backend/app/ingestion/task-def.json

@@ -10,6 +10,7 @@ from graph import create_query_graph, save_graph_image
 from classesForQudrant import VectorDatabase, QudrantVectorDatabase
 from qdrant_client import QdrantClient, models
 from firestore_checkpointer import FirestoreSaver
+from agenticPipeline.crewai_agents.prompt_loader import prompt_loader
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -65,6 +66,13 @@ async def build_container() -> AppContainer:
     firestore_client = get_firestore_client()
     checkpointer = FirestoreSaver(client=firestore_client)
     logger.info("the firebase client got initialized")
+
+    logger.info("Pre loading prompt templates using active Firestore client...")
+    promptloaded = prompt_loader.load_all_prompts(db=firestore_client, collection_name="prompt_template")
+    if promptloaded > 0 :
+        logger.info("Prompt templates cached in memory")
+    else :
+        logger.info("Some are missed")
 
     logger.info("Going to initialize the graph")
     query_graph = create_query_graph(checkpointer=checkpointer)

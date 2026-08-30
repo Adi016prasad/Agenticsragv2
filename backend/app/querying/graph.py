@@ -7,7 +7,6 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.types import RetryPolicy, TimeoutPolicy
 from nodes import GraphState, generate_response_node, route_after_generate, tool_node, token_calculator, route_after_token_calculator, human_approval_node, route_after_human_approval, send_approval_email_node, conversation_summary_node, after_tool_node_execution_decision, trigger_agentic_group
-from agenticPipeline.crewai_agents import trigger_master_orchestration_agent_node, trigger_semantic_agent_node, trigger_hybrid_agent_node, trigger_tool_specific_agent_node
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -59,9 +58,6 @@ def create_query_graph(checkpointer: BaseCheckpointSaver):
     builder.add_node("conversation_summary_node", conversation_summary_node, timeout=global_timeout_policy, retry_policy=global_retry_policy)
 
     builder.add_node("trigger_agentic_group", trigger_agentic_group, timeout=global_timeout_policy, retry_policy=global_retry_policy)
-
-    # Agentic nodes here
-    builder.add_node("trigger_master_orchestration_agent_node", trigger_master_orchestration_agent_node, timeout=global_timeout_policy, retry_policy=global_retry_policy)
 
     builder.add_edge(START, "token_calculator")
 

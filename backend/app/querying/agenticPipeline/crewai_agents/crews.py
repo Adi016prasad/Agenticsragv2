@@ -86,7 +86,6 @@ class MasterOrchestratorClassifier(IQueryClassifier):
         task = build_classification_task(
             agent=agent,
             current_message=state.current_message,
-            history=state.conversation_history,
             config=self._config,
         )
         crew = Crew(agents=[agent], tasks=[task], process=Process.sequential, verbose=self._config.verbose)

@@ -268,7 +268,7 @@ FIRESTORE SCHEMA & ENVIRONMENT RULES:
             memory=False,
             max_iter=8,
             max_execution_time=180,
-            verbose=self._config.verbose,
+            verbose=self._config.verbose
         )
 
 class ExternalResearcherAgentFactory:

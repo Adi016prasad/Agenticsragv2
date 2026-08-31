@@ -1,11 +1,12 @@
 """
 CrewAI Tool: Retrieves recent automated rollback incidents and error traces from Firestore.
+Returns data in dense, token-saving TOON format.
 """
 from __future__ import annotations
 
 import logging
 import os
-from typing import Type
+from typing import Any, Dict, List, Optional, Type
 
 from crewai.tools import BaseTool
 from google.cloud import firestore
@@ -24,6 +25,27 @@ def _get_firestore_client() -> firestore.Client | None:
         if key_path and os.path.exists(key_path):
             return firestore.Client.from_service_account_json(key_path)
         return firestore.Client(project=project_id)
+
+
+def _to_toon_rollbacks(incidents: List[Dict[str, Any]]) -> str:
+    """Converts raw incident dictionaries to dense Token-Oriented Object Notation (TOON)."""
+    lines = []
+    for inc in incidents:
+        template = inc.get("template_id", "")
+        metrics = inc.get("metrics_snapshot") or {}
+        err_pct = metrics.get("error_rate_pct", 0.0)
+        lat_ms = metrics.get("p95_latency_ms", 0.0)
+        raw_traces = inc.get("sample_error_traces") or []
+        clean_traces = []
+        for t in raw_traces[:7]:
+            short_t = str(t).replace("\n", " ").strip()
+            short_t = short_t[:90] + "..." if len(short_t) > 90 else short_t
+            clean_traces.append(short_t)
+
+        lines.append(
+            f"[template={template} | err_pct={err_pct} | lat_ms={lat_ms} | traces={clean_traces}]"
+        )
+    return "\n".join(lines)
 
 
 class ReadRollbackInput(BaseModel):
@@ -54,11 +76,9 @@ class ReadRollbackIncidentsTool(BaseTool):
 
             incidents = []
             for d in docs:
-                data = d.to_dict()
+                data = d.to_dict() or {}
                 incidents.append({
-                    "incident_id": d.id,
                     "template_id": data.get("template_id"),
-                    "rolled_back_at": data.get("rolled_back_at"),
                     "metrics_snapshot": data.get("metrics_snapshot"),
                     "sample_error_traces": data.get("sample_error_traces"),
                 })
@@ -66,7 +86,8 @@ class ReadRollbackIncidentsTool(BaseTool):
             if not incidents:
                 return "No recent automated canary rollback incidents recorded."
 
-            return f"Recent Canary Rollback Incidents:\n{incidents}"
+            return f"Recent Canary Rollback Incidents :\n{_to_toon_rollbacks(incidents)}"
+
         except Exception as exc:
             logger.warning(f"Could not read rollback incidents: {exc}")
             return f"No prior rollback incidents retrieved ({exc})."

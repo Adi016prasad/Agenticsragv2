@@ -64,7 +64,7 @@ class ReadHumanOptimizationFeedbackTool(BaseTool):
                 })
 
             if not results:
-                return "No prior human optimization feedback found"
+                return "No prior human optimization feedback found (first-time run)."
 
             return f"Recent Human Feedback & Decisions:\n{results}"
         except Exception as exc:

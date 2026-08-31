@@ -1,5 +1,6 @@
 """
 CrewAI Tool: Retrieves past human feedback & rejection reasons on optimization proposals.
+Returns data in dense, token-saving TOON format.
 """
 from __future__ import annotations
 
@@ -24,6 +25,23 @@ def _get_firestore_client() -> Optional[firestore.Client]:
         if key_path and os.path.exists(key_path):
             return firestore.Client.from_service_account_json(key_path)
         return firestore.Client(project=project_id)
+
+
+def _to_toon_feedback(results: List[Dict[str, Any]]) -> str:
+    """Converts raw feedback dictionaries to dense Token-Oriented Object Notation (TOON)."""
+    lines = []
+    for r in results:
+        target = r.get("target_template", "")
+        status = r.get("status", "unknown")
+        reason = r.get("rejection_reason") or "N/A"
+        rationale = r.get("rationale") or "N/A"
+
+        short_rationale = rationale[:120] + "..." if len(rationale) > 120 else rationale
+
+        lines.append(
+            f"[template={target} | status={status} | reason= \"{reason}\" | rationale=\"{short_rationale}\"]"
+        )
+    return "\n".join(lines)
 
 
 class ReadFeedbackInput(BaseModel):
@@ -53,12 +71,11 @@ class ReadHumanOptimizationFeedbackTool(BaseTool):
 
             results: List[Dict[str, Any]] = []
             for d in docs:
-                data = d.to_dict()
-                status = data.get("status", "unknown")
+                data = d.to_dict() or {}
                 results.append({
                     "proposal_id": d.id,
                     "target_template": data.get("target_template_id"),
-                    "status": status,
+                    "status": data.get("status", "unknown"),
                     "rejection_reason": data.get("rejection_reason"),
                     "rationale": data.get("rationale"),
                 })
@@ -66,7 +83,8 @@ class ReadHumanOptimizationFeedbackTool(BaseTool):
             if not results:
                 return "No prior human optimization feedback found (first-time run)."
 
-            return f"Recent Human Feedback & Decisions:\n{results}"
+            return f"Recent Human Feedback History :\n{_to_toon_feedback(results)}"
+
         except Exception as exc:
             logger.warning(f"Could not read human feedback: {exc}")
             return f"No prior feedback history retrieved ({exc})."

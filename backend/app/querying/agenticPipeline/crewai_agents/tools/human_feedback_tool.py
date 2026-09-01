@@ -34,12 +34,9 @@ def _to_toon_feedback(results: List[Dict[str, Any]]) -> str:
         target = r.get("target_template", "")
         status = r.get("status", "unknown")
         reason = r.get("rejection_reason") or "N/A"
-        rationale = r.get("rationale") or "N/A"
-
-        short_rationale = rationale[:120] + "..." if len(rationale) > 120 else rationale
 
         lines.append(
-            f"[template={target} | status={status} | reason= \"{reason}\" | rationale=\"{short_rationale}\"]"
+            f"[template={target} | status={status} | reason= \"{reason}\"]"
         )
     return "\n".join(lines)
 
@@ -73,11 +70,9 @@ class ReadHumanOptimizationFeedbackTool(BaseTool):
             for d in docs:
                 data = d.to_dict() or {}
                 results.append({
-                    "proposal_id": d.id,
                     "target_template": data.get("target_template_id"),
                     "status": data.get("status", "unknown"),
-                    "rejection_reason": data.get("rejection_reason"),
-                    "rationale": data.get("rationale"),
+                    "rejection_reason": data.get("rejection_reason")
                 })
 
             if not results:

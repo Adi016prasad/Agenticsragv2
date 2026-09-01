@@ -51,10 +51,6 @@ class StageProposalInput(BaseModel):
             "Must be the actual full prompt text."
         )
     )
-    rationale: str = Field(
-        ..., 
-        description="Data-driven telemetry audit justification based on DynamoDB tokens, latencies, and feedback."
-    )
     expected_cost_savings_pct: float = Field(
         default=0.0,
         description="Estimated percentage of cost or token savings (e.g. 45.0)."
@@ -75,7 +71,6 @@ class StageOptimizationProposalTool(BaseTool):
         recommended_model: str,
         change_reason: str,
         proposed_payload: Dict[str, Any],
-        rationale: str,
         expected_cost_savings_pct: float = 0.0,
     ) -> str:
         db = _get_firestore_client()
@@ -89,7 +84,6 @@ class StageOptimizationProposalTool(BaseTool):
             "recommended_model": recommended_model,
             "change_reason": change_reason,
             "proposed_payload": proposed_payload,
-            "rationale": rationale,
             "expected_cost_savings_pct": expected_cost_savings_pct,
             "status": "awaiting_human_approval",
             "created_at": datetime.now(timezone.utc).isoformat(),

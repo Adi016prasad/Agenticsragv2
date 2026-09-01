@@ -35,7 +35,7 @@ def test_smtp_send():
         print("❌ Error: Missing SMTP environment variables in your .env file.")
         return
 
-    proposal_id = "prop_test_12345"
+    proposal_id = "prop_2d51aa51e8"
     approve_url = f"{base_url}/optimization/approve?proposal_id={proposal_id}&decision=approve"
     reject_url = f"{base_url}/optimization/approve?proposal_id={proposal_id}&decision=reject"
 

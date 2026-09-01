@@ -1,5 +1,6 @@
 """
 CrewAI Tool: Sends the executive optimization action plan email with 1-Click Approve/Reject links.
+Redirects rejections to the hosted HTML feedback page.
 """
 from __future__ import annotations
 
@@ -42,7 +43,9 @@ class SendOptimizationEmailTool(BaseTool):
             return "Error: SMTP email configuration is missing in environment variables."
 
         approve_url = f"{base_url}/optimization/approve?proposal_id={proposal_id}&decision=approve"
-        reject_url = f"{base_url}/optimization/approve?proposal_id={proposal_id}&decision=reject"
+        
+        # 👉 REDIRECTS TO THE HOSTED HTML FEEDBACK PAGE ON YOUR FASTAPI SERVER
+        reject_url = f"{base_url}/optimization/reject-feedback?proposal_id={proposal_id}"
 
         # Plaintext Body
         text_body = (

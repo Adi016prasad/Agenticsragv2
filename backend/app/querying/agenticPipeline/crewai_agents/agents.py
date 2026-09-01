@@ -209,7 +209,7 @@ EXACT DYNAMODB TABLES AND ATTRIBUTES:
             backstory=backstory,
             llm=build_llm(self._config.orchestrator_model),
             tools=[DynamoDBSandboxInterpreterTool()],
-            allow_delegation=True,    # Allows bidirectional discussion
+            allow_delegation=True,
             memory=False,
             max_iter=6,
             max_execution_time=120,

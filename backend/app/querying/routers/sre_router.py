@@ -1,5 +1,6 @@
 """
 APIRouter handling SRE telemetry, Prometheus metrics, and Admin approvals.
+Contains the HTML page renderer for structured user rejection feedback.
 """
 from __future__ import annotations
 
@@ -12,7 +13,7 @@ from typing import Any, Dict, List, Optional
 import boto3
 from boto3.dynamodb.conditions import Key
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, HTMLResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from container import get_container, AppContainer
@@ -61,9 +62,53 @@ def _query_dynamodb_range(from_ms: int) -> List[Dict[str, Any]]:
     return records
 
 
-@router.get("/metrics", summary="Prometheus Metrics Endpoint", include_in_schema=False)
+@router.get("/metrics", response_class=PlainTextResponse, summary="Prometheus Metrics Endpoint", include_in_schema=False)
 def get_prometheus_metrics():
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+# 👉 NEW: SERVES THE BEAUTIFUL HTML FEEDBACK PAGE ON REJECTION
+@router.get("/optimization/reject-feedback", response_class=HTMLResponse)
+async def serve_rejection_feedback_page(
+    proposal_id: str = Query(..., description="ID of the staged optimization proposal")
+):
+    """
+    Serves a clean, user-friendly HTML page allowing administrators to 
+    submit their rejection reasons directly to the SRE agents.
+    """
+    submit_url = "/optimization/approve"
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>🛑 Reject Optimization Proposal</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 40px; display: flex; justify-content: center; }}
+            .card {{ background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 500px; width: 100%; border-top: 4px solid #d83b01; }}
+            h2 {{ color: #d83b01; margin-top: 0; }}
+            p {{ color: #666; font-size: 14px; }}
+            textarea {{ width: 100%; height: 120px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; margin-bottom: 20px; resize: none; }}
+            button {{ background-color: #d83b01; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; font-size: 15px; }}
+            button:hover {{ background-color: #b83201; }}
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h2>🛑 Reject Proposal: {proposal_id}</h2>
+            <p>Please provide a brief reason for rejecting this optimization proposal. Your feedback will be saved and fed directly into the SRE agents' memory so they can adapt their future strategies.</p>
+            
+            <form action="{submit_url}" method="get">
+                <input type="hidden" name="proposal_id" value="{proposal_id}">
+                <input type="hidden" name="decision" value="reject">
+                <textarea name="reason" placeholder="e.g., Do not shorten the hybrid prompt backstory. BM25 keyword matching requires those exact terms to prevent satisfaction drops." required></textarea>
+                <button type="submit">Submit Rejection & Feedback</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
 
 
 @router.get("/optimization/approve")
@@ -81,7 +126,7 @@ async def handle_optimization_approval(
     if not proposal_doc.exists:
         raise HTTPException(status_code=404, detail=f"Proposal '{proposal_id}' not found.")
 
-    proposal_data = proposal_doc.to_dict()
+    proposal_data = proposal_doc.to_dict() or {}
     is_approved = decision.lower() in ("approve", "approved", "yes", "true")
     now_iso = datetime.now(timezone.utc).isoformat()
 
@@ -91,7 +136,6 @@ async def handle_optimization_approval(
         change_reason = proposal_data.get("change_reason", "")
 
         if target_template_id and proposed_payload:
-            # Dynamic routing between prompt and LLM collections
             if target_template_id == "currentlyactivemodel":
                 db_ref = firestore_client.collection("LLM").document("currentlyactivemodel")
                 db_ref.set({
@@ -129,8 +173,10 @@ async def handle_optimization_approval(
         proposal_ref.update({"status": "approved", "reviewed_at": now_iso})
         return {"status": "success", "decision": "approved", "target_template_id": target_template_id}
     else:
+        # Rejection path with custom feedback reason
         rejection_reason = reason or "Rejected by administrator."
         proposal_ref.update({"status": "rejected", "reviewed_at": now_iso, "rejection_reason": rejection_reason})
+        logger.info(f"🛑 [HITL Rejected] Proposal '{proposal_id}' rejected. Reason: {rejection_reason}")
         return {"status": "success", "decision": "rejected", "rejection_reason": rejection_reason}
 
 
@@ -204,6 +250,7 @@ def get_all_feedback_metrics() -> List[Dict[str, Any]]:
         logger.error(f"Failed to scan: {e}")
         raise
 
+
 @router.post("/api/v1/feedbackWrite")
 async def writeuserfeedback(
     request: FeedbackRequest,
@@ -221,6 +268,7 @@ async def writeuserfeedback(
     cache_payload = {"agentName": agent_name, "user_id": user_id, "session_id": session_id, "requestId": request_id, "feedback": feedback}
     cache.set(key=cache_key, value=cache_payload, ttl=TTL)
 
+    # Record in Prometheus
     sentiment = "good" if "good" in feedback.lower() or feedback == "1" else "bad"
     AGENTIC_FEEDBACK_TOTAL.labels(agent_name=agent_name, sentiment=sentiment).inc()
 

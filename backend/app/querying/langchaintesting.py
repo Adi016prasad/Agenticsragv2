@@ -177,3 +177,30 @@ modelforinput = primary_model.with_fallbacks(
 )
 
 chain = prompt | modelforinput | StrOutputParser()
+
+
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder
+
+documents = []
+
+prompt1 = PromptTemplate.from_template(
+    f"You are a helpful assistant. Answer the question based on the provided documents.\n\nQuestion: {{question}}\n\nDocuments: {{answers}}"
+)
+
+prompt2 = ChatPromptTemplate.from_template(
+    ("system", "You are a helpful assistant. Answer the question based on the provided documents"),
+    MessagesPlaceholder("history"),
+    ("user", "Question: {question}\n\nDocuments: {documents}"),
+)
+
+
+result = prompt2.invoke(
+    {
+        "history": [
+            ("user", "What is AI?"),
+            ("assistant", "AI is a branch of computer science that aims to create machines that can perform tasks that typically require human intelligence."),
+        ],
+        "question": "How does it relate to machine learning?",
+        "documents": documents
+    }
+)

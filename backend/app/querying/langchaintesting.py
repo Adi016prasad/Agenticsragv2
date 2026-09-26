@@ -176,7 +176,7 @@ modelforinput = primary_model.with_fallbacks(
     exceptions_to_handle = (TimeoutError, ConnectionError)
 )
 
-chain = prompt | modelforinput | StrOutputParser()
+chain = rag_input | prompt | modelforinput | StrOutputParser()
 
 
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder

@@ -648,19 +648,23 @@ async def human_approval_node(state: GraphState, runtime: Runtime) -> dict[str, 
         "yes", "true", "approve", "approved"
     )
 
-    logger.info(
-        f"human_approval_node resumed with decision={decision!r}"
-        f"-> approved={approved}"
-    )
+    if approved :
+        logger.info(
+                f"human_approval_node resumed with decision={decision!r}"
+                f"-> approved={approved}"
+            )
+        current_threshold = (
+            state.get("MAXIMUM_TOTAL_TOKENS_THRESHOLD") or 400
+        )
+        new_threshold = current_threshold + DELTA_INCREAMENT
 
-    current_threshold = (
-        state.get("MAXIMUM_TOTAL_TOKENS_THRESHOLD") or 400
-    )
-    new_threshold = current_threshold + DELTA_INCREAMENT
+        return {
+            "approved": approved,
+            "MAXIMUM_TOTAL_TOKENS_THRESHOLD": new_threshold
+        }
 
     return {
-        "approved": approved,
-        "MAXIMUM_TOTAL_TOKENS_THRESHOLD": new_threshold
+        "approved": approved
     }
 
 def route_after_human_approval(state: GraphState) -> str:

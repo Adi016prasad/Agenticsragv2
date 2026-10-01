@@ -25,3 +25,4 @@ langchain-google-vertexai
 rouge-score
 sacrebleu
 google-adk
+ragas
